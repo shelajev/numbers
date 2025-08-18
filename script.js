@@ -9,6 +9,10 @@ const startButton = document.getElementById('start-button');
 const gameContainer = document.getElementById('game-container');
 const replaySoundButton = document.getElementById('replay-sound-button');
 const clearButton = document.getElementById('clear-button');
+const statsButton = document.getElementById('stats-button');
+const statsModal = document.getElementById('stats-modal');
+const statsContainer = document.getElementById('stats-container');
+const closeButton = document.querySelector('.close-button');
 
 let isDrawing = false;
 let isChecking = false;
@@ -178,6 +182,22 @@ async function checkNumber() {
 }
 
 
+
+function showStats() {
+    statsContainer.innerHTML = '';
+    for (const number in numberScores) {
+        const statItem = document.createElement('div');
+        statItem.classList.add('stat-item');
+        statItem.textContent = `${number}: ${numberScores[number]}`;
+        statsContainer.appendChild(statItem);
+    }
+    statsModal.style.display = 'block';
+}
+
+function hideStats() {
+    statsModal.style.display = 'none';
+}
+
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
 canvas.addEventListener('mouseup', stopDrawing);
@@ -193,5 +213,12 @@ replaySoundButton.addEventListener('click', () => speak(currentNumber.toString()
 clearButton.addEventListener('click', () => {
     clearCanvas();
     drawGuide();
+});
+statsButton.addEventListener('click', showStats);
+closeButton.addEventListener('click', hideStats);
+window.addEventListener('click', (event) => {
+    if (event.target == statsModal) {
+        hideStats();
+    }
 });
 loadStats();
