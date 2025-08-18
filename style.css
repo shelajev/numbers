@@ -30,6 +30,13 @@ body {
     touch-action: none;
 }
 
+#feedback-container {
+    font-size: 1.5em;
+    color: #4caf50;
+    margin-top: 10px;
+    height: 30px; 
+}
+
 #check-button {
     margin-top: 20px;
     padding: 15px 30px;

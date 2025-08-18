@@ -2,6 +2,7 @@ const canvas = document.getElementById('drawing-canvas');
 const ctx = canvas.getContext('2d');
 const checkButton = document.getElementById('check-button');
 const numberPrompt = document.getElementById('number-prompt');
+const feedbackContainer = document.getElementById('feedback-container');
 
 let isDrawing = false;
 let currentNumber = 0;
@@ -15,6 +16,7 @@ function startLevel() {
     clearCanvas();
     attempts = 0;
     drawGuide();
+    feedbackContainer.textContent = '';
 }
 
 function speak(text) {
@@ -79,10 +81,21 @@ function getMousePos(e) {
 }
 
 function checkNumber() {
-    // This is a placeholder for a real image comparison.
-    // For now, we'll just move to the next level.
-    alert('Good job! Moving to the next number.');
-    startLevel();
+    attempts++;
+    if (attempts < 3) {
+        feedbackContainer.textContent = "Almost! Try again.";
+        feedbackContainer.style.color = '#ff6347'; // Tomato color for 'try again'
+        clearCanvas();
+        drawGuide();
+        return;
+    }
+
+    feedbackContainer.textContent = "Great job!";
+    feedbackContainer.style.color = '#4caf50'; // Green for success
+
+    setTimeout(() => {
+        startLevel();
+    }, 1500);
 }
 
 canvas.addEventListener('mousedown', startDrawing);
