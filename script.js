@@ -23,6 +23,8 @@ const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082'
 let attempts = 0;
 let score = 0;
 let numberScores = {};
+let sessionCorrectAnswers = 0;
+let numbersExpanded = false;
 
 function loadStats() {
     const savedScores = localStorage.getItem('numberScores');
@@ -80,7 +82,8 @@ function drawGuide() {
     if (numberScores[currentNumber] < 4 || attempts >= 2) {
         // Simple guide for now - just show the number transparently
         ctx.save();
-        ctx.font = '200px "Comic Sans MS"';
+        const fontSize = currentNumber > 9 ? '150px' : '200px';
+        ctx.font = `${fontSize} "Comic Sans MS"`;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -175,11 +178,24 @@ async function checkNumber() {
 
     if (isCorrect) {
         score++;
+        sessionCorrectAnswers++;
         numberScores[currentNumber]++;
         scoreContainer.textContent = `Score: ${score}`;
         saveStats();
         feedbackContainer.textContent = "Great job!";
         feedbackContainer.style.color = '#4caf50';
+
+        if (sessionCorrectAnswers === 4 && !numbersExpanded) {
+            numbersExpanded = true;
+            for (let i = 10; i <= 20; i++) {
+                numbers.push(i);
+                if (!numberScores.hasOwnProperty(i)) {
+                    numberScores[i] = 0;
+                }
+            }
+            feedbackContainer.textContent = "Great! Now for bigger numbers!";
+        }
+
         setTimeout(startLevel, 1500);
     } else {
         attempts++;
