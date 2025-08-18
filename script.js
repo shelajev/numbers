@@ -11,12 +11,13 @@ let attempts = 0;
 
 function startLevel() {
     currentNumber = numbers[Math.floor(Math.random() * numbers.length)];
-    numberPrompt.textContent = `Draw the number: ${currentNumber}`;
+    numberPrompt.textContent = `Draw the number`;
     speak(currentNumber.toString());
     clearCanvas();
     attempts = 0;
     drawGuide();
     feedbackContainer.textContent = '';
+    checkButton.disabled = false;
 }
 
 function speak(text) {
@@ -80,23 +81,39 @@ function getMousePos(e) {
     return { x, y };
 }
 
-function checkNumber() {
-    attempts++;
-    if (attempts < 3) {
-        feedbackContainer.textContent = "Almost! Try again.";
-        feedbackContainer.style.color = '#ff6347'; // Tomato color for 'try again'
-        clearCanvas();
-        drawGuide();
-        return;
+async function checkNumber() {
+    checkButton.disabled = true;
+    feedbackContainer.textContent = "Checking...";
+    feedbackContainer.style.color = '#888';
+
+    const { data: { text } } = await Tesseract.recognize(
+        canvas,
+        'eng',
+        {
+            logger: m => console.log(m),
+            tessedit_char_whitelist: '0123456789',
+        }
+    );
+
+    const recognizedNumber = parseInt(text.trim());
+
+    if (recognizedNumber === currentNumber) {
+        feedbackContainer.textContent = "Great job!";
+        feedbackContainer.style.color = '#4caf50';
+        setTimeout(startLevel, 1500);
+    } else {
+        attempts++;
+        feedbackContainer.textContent = `I see a ${recognizedNumber}. Try again!`;
+        feedbackContainer.style.color = '#ff6347';
+        checkButton.disabled = false;
+        setTimeout(() => {
+            clearCanvas();
+            drawGuide();
+            feedbackContainer.textContent = '';
+        }, 2000);
     }
-
-    feedbackContainer.textContent = "Great job!";
-    feedbackContainer.style.color = '#4caf50'; // Green for success
-
-    setTimeout(() => {
-        startLevel();
-    }, 1500);
 }
+
 
 canvas.addEventListener('mousedown', startDrawing);
 canvas.addEventListener('mousemove', draw);
