@@ -17,6 +17,14 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
+#score-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 2em;
+    color: #ff69b4;
+}
+
 #number-prompt {
     font-size: 3em;
     color: #ff69b4;
