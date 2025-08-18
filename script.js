@@ -148,7 +148,7 @@ async function checkNumber() {
     feedbackContainer.textContent = "Checking...";
     feedbackContainer.style.color = '#888';
 
-    const { data: { text } } = await Tesseract.recognize(
+    const { data } = await Tesseract.recognize(
         canvas,
         'eng',
         {
@@ -157,9 +157,23 @@ async function checkNumber() {
         }
     );
 
-    const recognizedNumber = parseInt(text.trim());
+    const recognizedNumber = parseInt(data.text.trim());
+    let isCorrect = (recognizedNumber === currentNumber);
 
-    if (recognizedNumber === currentNumber) {
+    // Relax the check by looking at other choices from Tesseract
+    if (!isCorrect && data.symbols) {
+        for (const symbol of data.symbols) {
+            for (const choice of symbol.choices) {
+                if (parseInt(choice.text.trim()) === currentNumber && choice.confidence > 40) {
+                    isCorrect = true;
+                    break;
+                }
+            }
+            if (isCorrect) break;
+        }
+    }
+
+    if (isCorrect) {
         score++;
         numberScores[currentNumber]++;
         scoreContainer.textContent = `Score: ${score}`;
@@ -169,7 +183,8 @@ async function checkNumber() {
         setTimeout(startLevel, 1500);
     } else {
         attempts++;
-        feedbackContainer.textContent = `I see a ${recognizedNumber}. Try again!`;
+        const displayedNumber = isNaN(recognizedNumber) ? "something that's not a number" : `a ${recognizedNumber}`;
+        feedbackContainer.textContent = `I see ${displayedNumber}. Try again!`;
         feedbackContainer.style.color = '#ff6347';
         checkButton.disabled = false;
         setTimeout(() => {
