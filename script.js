@@ -8,6 +8,7 @@ const startContainer = document.getElementById('start-container');
 const startButton = document.getElementById('start-button');
 const gameContainer = document.getElementById('game-container');
 const replaySoundButton = document.getElementById('replay-sound-button');
+const clearButton = document.getElementById('clear-button');
 
 let isDrawing = false;
 let isChecking = false;
@@ -121,7 +122,20 @@ function getMousePos(e) {
     return { x, y };
 }
 
+function isCanvasEmpty() {
+    const pixelBuffer = new Uint32Array(
+        ctx.getImageData(0, 0, canvas.width, canvas.height).data.buffer
+    );
+    return !pixelBuffer.some(color => color !== 0);
+}
+
 async function checkNumber() {
+    if (isCanvasEmpty()) {
+        feedbackContainer.textContent = "Please draw a number first!";
+        feedbackContainer.style.color = '#ff6347'; // Use the 'try again' color
+        return;
+    }
+
     isChecking = true;
     checkButton.disabled = true;
     feedbackContainer.textContent = "Checking...";
@@ -173,4 +187,8 @@ canvas.addEventListener('touchend', stopDrawing);
 checkButton.addEventListener('click', checkNumber);
 startButton.addEventListener('click', initGame);
 replaySoundButton.addEventListener('click', () => speak(currentNumber.toString()));
+clearButton.addEventListener('click', () => {
+    clearCanvas();
+    drawGuide();
+});
 loadStats();
