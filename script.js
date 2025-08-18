@@ -13,7 +13,9 @@ const clearButton = document.getElementById('clear-button');
 let isDrawing = false;
 let isChecking = false;
 let currentNumber = 0;
+let currentColor = '#ff69b4';
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF'];
 let attempts = 0;
 let score = 0;
 let numberScores = {};
@@ -51,6 +53,7 @@ function initGame() {
 function startLevel() {
     isChecking = false;
     currentNumber = numbers[Math.floor(Math.random() * numbers.length)];
+    currentColor = colors[Math.floor(Math.random() * colors.length)];
     numberPrompt.textContent = `Draw the number`;
     speak(currentNumber.toString());
     clearCanvas();
@@ -97,7 +100,7 @@ function draw(e) {
     const pos = getMousePos(e);
     ctx.lineWidth = 15;
     ctx.lineCap = 'round';
-    ctx.strokeStyle = '#ff69b4';
+    ctx.strokeStyle = currentColor;
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
     ctx.beginPath();
