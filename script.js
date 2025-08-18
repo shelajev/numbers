@@ -68,7 +68,7 @@ function clearCanvas() {
 }
 
 function drawGuide() {
-    if (numberScores[currentNumber] < 4) {
+    if (numberScores[currentNumber] < 4 || attempts >= 2) {
         // Simple guide for now - just show the number transparently
         ctx.save();
         ctx.font = '200px "Comic Sans MS"';
