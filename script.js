@@ -14,11 +14,35 @@ let currentNumber = 0;
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
 let attempts = 0;
 let score = 0;
-let numberScores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+let numberScores = {};
+
+function loadStats() {
+    const savedScores = localStorage.getItem('numberScores');
+    const savedScore = localStorage.getItem('totalScore');
+
+    if (savedScores) {
+        numberScores = JSON.parse(savedScores);
+    } else {
+        numberScores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+    }
+
+    if (savedScore) {
+        score = parseInt(savedScore, 10);
+    } else {
+        score = 0;
+    }
+    scoreContainer.textContent = `Score: ${score}`;
+}
+
+function saveStats() {
+    localStorage.setItem('numberScores', JSON.stringify(numberScores));
+    localStorage.setItem('totalScore', score.toString());
+}
 
 function initGame() {
     startContainer.style.display = 'none';
     gameContainer.style.display = 'block';
+    loadStats();
     startLevel();
 }
 
@@ -117,6 +141,7 @@ async function checkNumber() {
         score++;
         numberScores[currentNumber]++;
         scoreContainer.textContent = `Score: ${score}`;
+        saveStats();
         feedbackContainer.textContent = "Great job!";
         feedbackContainer.style.color = '#4caf50';
         setTimeout(startLevel, 1500);
@@ -146,3 +171,4 @@ canvas.addEventListener('touchend', stopDrawing);
 
 checkButton.addEventListener('click', checkNumber);
 startButton.addEventListener('click', initGame);
+loadStats();
