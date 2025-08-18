@@ -1,0 +1,47 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f8ff;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+#game-container {
+    text-align: center;
+    border: 5px solid #ff69b4;
+    border-radius: 20px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+#number-prompt {
+    font-size: 3em;
+    color: #ff69b4;
+    margin-bottom: 20px;
+}
+
+#drawing-canvas {
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+#check-button {
+    margin-top: 20px;
+    padding: 15px 30px;
+    font-size: 1.5em;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#check-button:hover {
+    background-color: #45a049;
+}
