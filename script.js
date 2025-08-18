@@ -7,6 +7,7 @@ const scoreContainer = document.getElementById('score-container');
 const startContainer = document.getElementById('start-container');
 const startButton = document.getElementById('start-button');
 const gameContainer = document.getElementById('game-container');
+const replaySoundButton = document.getElementById('replay-sound-button');
 
 let isDrawing = false;
 let isChecking = false;
@@ -171,4 +172,5 @@ canvas.addEventListener('touchend', stopDrawing);
 
 checkButton.addEventListener('click', checkNumber);
 startButton.addEventListener('click', initGame);
+replaySoundButton.addEventListener('click', () => speak(currentNumber.toString()));
 loadStats();

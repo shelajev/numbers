@@ -44,6 +44,27 @@ body {
     color: #ff69b4;
 }
 
+.prompt-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+#replay-sound-button {
+    font-size: 2em;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #ff69b4;
+    transition: transform 0.2s;
+}
+
+#replay-sound-button:hover {
+    transform: scale(1.2);
+}
+
 #number-prompt {
     font-size: 3em;
     color: #ff69b4;
