@@ -71,6 +71,11 @@ function startLevel() {
 
 function speak(text) {
     const utterance = new SpeechSynthesisUtterance(text);
+    const voices = speechSynthesis.getVoices();
+    const femaleVoice = voices.find(voice => voice.name.includes('Female') && voice.lang.startsWith('en'));
+    if (femaleVoice) {
+        utterance.voice = femaleVoice;
+    }
     speechSynthesis.speak(utterance);
 }
 
