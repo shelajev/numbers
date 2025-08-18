@@ -17,6 +17,25 @@ body {
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
+#start-container {
+    text-align: center;
+}
+
+#start-button {
+    font-size: 2em;
+    padding: 20px 40px;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#start-button:hover {
+    background-color: #45a049;
+}
+
 #score-container {
     position: absolute;
     top: 20px;
