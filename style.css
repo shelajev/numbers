@@ -9,12 +9,22 @@ body {
 }
 
 #game-container {
+    position: relative;
     text-align: center;
     border: 5px solid #ff69b4;
     border-radius: 20px;
     padding: 20px;
     background-color: #fff;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+#corner-buttons {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 #start-container {
@@ -38,7 +48,7 @@ body {
 
 #info-bar {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     width: 100%;
     max-width: 300px;
@@ -48,6 +58,21 @@ body {
 #score-container {
     font-size: 1.5em;
     color: #ff69b4;
+}
+
+#mode-switch-button {
+    padding: 5px 10px;
+    font-size: 0.7em;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#mode-switch-button:hover {
+    background-color: #0056b3;
 }
 
 .prompt-container {
@@ -92,11 +117,9 @@ body {
 }
 
 .button-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
+    position: relative;
     margin-top: 20px;
+    height: 60px; /* Accommodate button sizes */
 }
 
 #check-button {
@@ -109,6 +132,10 @@ body {
     border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 #clear-button {
@@ -119,6 +146,12 @@ body {
     padding: 0;
     color: #aaa;
     transition: transform 0.2s;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* Offset by ~half of check-button's width + gap */
+    margin-left: 85px;
+    transform: translateY(-50%);
 }
 
 #clear-button:hover {
@@ -130,13 +163,12 @@ body {
 }
 
 #stats-button {
-    margin-top: 10px;
-    padding: 10px 20px;
-    font-size: 1em;
+    padding: 5px 10px;
+    font-size: 0.7em;
     color: #fff;
     background-color: #6c757d;
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
 }

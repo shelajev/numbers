@@ -12,13 +12,16 @@
         <button id="start-button">Start Game</button>
     </div>
     <div id="game-container" style="display: none;">
+        <div id="corner-buttons">
+            <button id="mode-switch-button">Switch to Letters</button>
+            <button id="stats-button">Stats</button>
+        </div>
         <div class="prompt-container">
             <h1 id="number-prompt"></h1>
             <button id="replay-sound-button">🔊</button>
         </div>
         <div id="info-bar">
             <div id="score-container">Score: 0</div>
-            <button id="stats-button">Stats</button>
         </div>
         <canvas id="drawing-canvas" width="300" height="300"></canvas>
         <div id="feedback-container"></div>

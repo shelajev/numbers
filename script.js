@@ -13,27 +13,41 @@ const statsButton = document.getElementById('stats-button');
 const statsModal = document.getElementById('stats-modal');
 const statsContainer = document.getElementById('stats-container');
 const closeButton = document.querySelector('.close-button');
+const modeSwitchButton = document.getElementById('mode-switch-button');
 
 let isDrawing = false;
 let isChecking = false;
-let currentNumber = 0;
+let currentCharacter = 0;
 let currentColor = '#ff69b4';
+let gameMode = 'numbers'; // 'numbers' or 'letters'
+
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const colors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#8B00FF'];
+
 let attempts = 0;
 let score = 0;
 let numberScores = {};
+let letterScores = {};
 let sessionCorrectAnswers = 0;
 let numbersExpanded = false;
 
 function loadStats() {
-    const savedScores = localStorage.getItem('numberScores');
+    const savedNumberScores = localStorage.getItem('numberScores');
+    const savedLetterScores = localStorage.getItem('letterScores');
     const savedScore = localStorage.getItem('totalScore');
 
-    if (savedScores) {
-        numberScores = JSON.parse(savedScores);
+    if (savedNumberScores) {
+        numberScores = JSON.parse(savedNumberScores);
     } else {
         numberScores = { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0 };
+    }
+
+    if (savedLetterScores) {
+        letterScores = JSON.parse(savedLetterScores);
+    } else {
+        letterScores = {};
+        letters.forEach(l => letterScores[l] = 0);
     }
 
     if (savedScore) {
@@ -46,6 +60,7 @@ function loadStats() {
 
 function saveStats() {
     localStorage.setItem('numberScores', JSON.stringify(numberScores));
+    localStorage.setItem('letterScores', JSON.stringify(letterScores));
     localStorage.setItem('totalScore', score.toString());
 }
 
@@ -58,10 +73,11 @@ function initGame() {
 
 function startLevel() {
     isChecking = false;
-    currentNumber = numbers[Math.floor(Math.random() * numbers.length)];
+    const characterSet = gameMode === 'numbers' ? numbers : letters;
+    currentCharacter = characterSet[Math.floor(Math.random() * characterSet.length)];
     currentColor = colors[Math.floor(Math.random() * colors.length)];
-    numberPrompt.textContent = `Draw the number`;
-    speak(currentNumber.toString());
+    numberPrompt.textContent = `Draw the ${gameMode === 'numbers' ? 'number' : 'letter'}`;
+    speak(currentCharacter.toString());
     clearCanvas();
     attempts = 0;
     drawGuide();
@@ -84,15 +100,16 @@ function clearCanvas() {
 }
 
 function drawGuide() {
-    if (numberScores[currentNumber] < 4 || attempts >= 2) {
+    const scores = gameMode === 'numbers' ? numberScores : letterScores;
+    if (scores[currentCharacter] < 4 || attempts >= 2) {
         // Simple guide for now - just show the number transparently
         ctx.save();
-        const fontSize = currentNumber > 9 ? '150px' : '200px';
+        const fontSize = currentCharacter > 9 ? '150px' : '200px';
         ctx.font = `${fontSize} "Comic Sans MS"`;
         ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(currentNumber, canvas.width / 2, canvas.height / 2);
+        ctx.fillText(currentCharacter, canvas.width / 2, canvas.height / 2);
         ctx.restore();
     }
 }
@@ -144,9 +161,9 @@ function isCanvasEmpty() {
     return !pixelBuffer.some(color => color !== 0);
 }
 
-async function checkNumber() {
+async function checkCharacter() {
     if (isCanvasEmpty()) {
-        feedbackContainer.textContent = "Please draw a number first!";
+        feedbackContainer.textContent = "Please draw something first!";
         feedbackContainer.style.color = '#ff6347'; // Use the 'try again' color
         return;
     }
@@ -156,23 +173,39 @@ async function checkNumber() {
     feedbackContainer.textContent = "Checking...";
     feedbackContainer.style.color = '#888';
 
+    const whitelist = gameMode === 'numbers' ? '0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const { data } = await Tesseract.recognize(
         canvas,
         'eng',
         {
             logger: m => console.log(m),
-            tessedit_char_whitelist: '0123456789',
+            tessedit_char_whitelist: whitelist,
         }
     );
 
-    const recognizedNumber = parseInt(data.text.trim());
-    let isCorrect = (recognizedNumber === currentNumber);
+    const recognizedText = data.text.trim().toUpperCase();
+    let recognizedChar;
+    if (gameMode === 'numbers') {
+        recognizedChar = parseInt(recognizedText);
+    } else {
+        recognizedChar = recognizedText.length > 0 ? recognizedText[0] : '';
+    }
+
+    let isCorrect = (recognizedChar === currentCharacter);
 
     // Relax the check by looking at other choices from Tesseract
     if (!isCorrect && data.symbols) {
         for (const symbol of data.symbols) {
             for (const choice of symbol.choices) {
-                if (parseInt(choice.text.trim()) === currentNumber && choice.confidence > 40) {
+                let choiceChar;
+                const choiceText = choice.text.trim().toUpperCase();
+                if (gameMode === 'numbers') {
+                    choiceChar = parseInt(choiceText);
+                } else {
+                    choiceChar = choiceText.length > 0 ? choiceText[0] : '';
+                }
+
+                if (choiceChar === currentCharacter && choice.confidence > 40) {
                     isCorrect = true;
                     break;
                 }
@@ -183,14 +216,17 @@ async function checkNumber() {
 
     if (isCorrect) {
         score++;
-        sessionCorrectAnswers++;
-        numberScores[currentNumber]++;
+        const scores = gameMode === 'numbers' ? numberScores : letterScores;
+        scores[currentCharacter]++;
+        if (gameMode === 'numbers') {
+            sessionCorrectAnswers++;
+        }
         scoreContainer.textContent = `Score: ${score}`;
         saveStats();
         feedbackContainer.textContent = "Great job!";
         feedbackContainer.style.color = '#4caf50';
 
-        if (sessionCorrectAnswers === 4 && !numbersExpanded) {
+        if (gameMode === 'numbers' && sessionCorrectAnswers === 4 && !numbersExpanded) {
             numbersExpanded = true;
             for (let i = 10; i <= 20; i++) {
                 numbers.push(i);
@@ -204,8 +240,10 @@ async function checkNumber() {
         setTimeout(startLevel, 1500);
     } else {
         attempts++;
-        const displayedNumber = isNaN(recognizedNumber) ? "something that's not a number" : `a ${recognizedNumber}`;
-        feedbackContainer.textContent = `I see ${displayedNumber}. Try again!`;
+        const displayedChar = (gameMode === 'numbers' && isNaN(recognizedChar)) || (gameMode === 'letters' && !recognizedChar)
+            ? "something else"
+            : `a ${recognizedChar}`;
+        feedbackContainer.textContent = `I see ${displayedChar}. Try again!`;
         feedbackContainer.style.color = '#ff6347';
         checkButton.disabled = false;
         setTimeout(() => {
@@ -221,10 +259,11 @@ async function checkNumber() {
 
 function showStats() {
     statsContainer.innerHTML = '';
-    for (const number in numberScores) {
+    const scores = gameMode === 'numbers' ? numberScores : letterScores;
+    for (const char in scores) {
         const statItem = document.createElement('div');
         statItem.classList.add('stat-item');
-        statItem.textContent = `${number}: ${numberScores[number]}`;
+        statItem.textContent = `${char}: ${scores[char]}`;
         statsContainer.appendChild(statItem);
     }
     statsModal.style.display = 'block';
@@ -243,14 +282,26 @@ canvas.addEventListener('touchstart', startDrawing);
 canvas.addEventListener('touchmove', draw);
 canvas.addEventListener('touchend', stopDrawing);
 
-checkButton.addEventListener('click', checkNumber);
+function switchMode() {
+    if (gameMode === 'numbers') {
+        gameMode = 'letters';
+        modeSwitchButton.textContent = 'Switch to Numbers';
+    } else {
+        gameMode = 'numbers';
+        modeSwitchButton.textContent = 'Switch to Letters';
+    }
+    startLevel();
+}
+
+checkButton.addEventListener('click', checkCharacter);
 startButton.addEventListener('click', initGame);
-replaySoundButton.addEventListener('click', () => speak(currentNumber.toString()));
+replaySoundButton.addEventListener('click', () => speak(currentCharacter.toString()));
 clearButton.addEventListener('click', () => {
     clearCanvas();
     drawGuide();
 });
 statsButton.addEventListener('click', showStats);
+modeSwitchButton.addEventListener('click', switchMode);
 closeButton.addEventListener('click', hideStats);
 window.addEventListener('click', (event) => {
     if (event.target == statsModal) {
